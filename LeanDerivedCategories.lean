@@ -6,6 +6,7 @@ by Joël Riou.
 -/
 
 import Mathlib.Algebra.Homology.DerivedCategory.Basic
+import Mathlib.Algebra.Homology.SpectralSequence.Examples.Grothendieck
 
 universe w v u
 
