@@ -5,10 +5,10 @@ by Joël Riou.
 
 -/
 
-import Mathlib.Algebra.Homology.DerivedCategory.Basic
+import Mathlib.Algebra.Homology.DerivedCategory.LargeExt
 import Mathlib.Algebra.Homology.SpectralSequence.Examples.Grothendieck
 import Mathlib.CategoryTheory.Abelian.RefinementsExtra
-import Mathlib.CategoryTheory.Localization.Prod
+import Mathlib.CategoryTheory.Triangulated.Yoneda
 
 universe w v u
 
@@ -156,9 +156,10 @@ end
 section
 
 /-! ### 3.8.1 -/
+
 variable {C : Type u} [Category.{v} C]
 
--- this means that we have a category `C`
+-- The declaration of variables above means that we have a category `C` such that:
 -- * the type `C` of objects is in the universe `u`:
 example : Type u := C
 -- * the type of morphisms `X ⟶ Y` between two objects in `C` is in the universe `v`:
@@ -168,23 +169,23 @@ example (X Y : C) : Type v := X ⟶ Y
 
 variable (W : MorphismProperty C)
 
--- the type of the objects of the constructed localized category
+-- The type of the objects of the constructed localized category
 -- `W.Localization` with respect to the class of morphisms `W`
--- is a type synonym for `C`: it is in the universe `u`:
+-- is a type synonym for `C`, then it is in the universe `u`:
 example : Type u := W.Localization
 
--- however, the type of morphisms between two objects in `W.Localization`
+-- However, the type of morphisms between two objects in `W.Localization`
 -- is not in `max v` general, it is in the universe `max u v`:
 example (X Y : W.Localization) : Type (max u v) := X ⟶ Y
 
--- the same problems happens when there is a calculus of fractions:
--- because of the intermediate object, the type of left fractions
+-- the same problems happens even when there is a calculus of fractions:
+-- because of the data of an intermediate object, the type of left fractions
 -- from `X` to `Y` is in `Type (max u v)`:
 example (X Y : C) : Type (max u v) := W.LeftFraction X Y
 
 /-! ### 3.8.3
 I formalized the fundamental lemma of homotopical algebra 3.8.3.1 in lean 3,
-it appeard in the file `src/for_mathlib/algebraic_topology/homotopical_algebra`
+it appeared in the file `src/for_mathlib/algebraic_topology/homotopical_algebra`
 in the project at https://github.com/joelriou/homotopical_algebra
 -/
 
@@ -298,7 +299,7 @@ variable (F : C ⥤ D) [F.Additive]
 example : (F.mapHomologicalComplex (ComplexShape.up ℤ)).CommShift ℤ := inferInstance
 noncomputable example : (F.mapHomotopyCategory (ComplexShape.up ℤ)).CommShift ℤ := inferInstance
 
--- this not only means that up to isomorphisms, the these functors commute with the
+-- this not only means that up to isomorphisms, these functors commute with the
 -- shift by any `a : ℤ`, but also that these isomorphisms satisfy certain compatibilites:
 #check Functor.CommShift.zero
 #check Functor.CommShift.add
@@ -378,5 +379,301 @@ example (α : Cochain M K n) : (α.comp (inl f) rfl).comp (fst f).1 (by omega) =
 
 end
 
+/-! ## 4.4 The localization theorem for triangulated categories -/
+
+section
+
+variable {T : Type*} [Category T] [HasZeroObject T] [Preadditive T] [HasShift T ℤ]
+  [∀ (n : ℤ), (shiftFunctor T n).Additive] [Pretriangulated T]
+
+/-! ### 4.4.1 The localization theorem -/
+
+example (W : MorphismProperty T) [W.HasLeftCalculusOfFractions]
+    [W.IsCompatibleWithTriangulation] :
+  Pretriangulated W.Localization := by infer_instance
+
+example [IsTriangulated T] (W : MorphismProperty T) [W.HasLeftCalculusOfFractions]
+    [W.HasRightCalculusOfFractions] [W.IsCompatibleWithTriangulation] :
+  IsTriangulated W.Localization := by infer_instance
+
+/-! ### 4.4.2 Triangulated subcategories -/
+
+-- the notion of triangulated subcategory of a pretriangulated category
+#check Triangulated.Subcategory
+
+-- if `S` is a triangulated subcategory of a triangulated category `T`, then
+-- the class `S.W : MorphismProperty T` of morphisms whose cone is
+-- in `S` (at least up to isomorphism) satisfies the assumption of the theorem 4.4.1,
+-- in which case the localized category with respect to `S.W` is the "Verdier quotient `T/S`"
+example (S : Triangulated.Subcategory T) [IsTriangulated T] :
+    IsTriangulated S.W.Localization := inferInstance
+
+end
+/-! ### 4.4.3 The derived category -/
+
+section
+
+variable {C : Type u} [Category.{v} C] [Abelian C] [HasDerivedCategory.{w} C]
+
+-- The triangulated subcategory of the homotopy category of an abelian category
+-- consisting of acyclic complexes
+example : Triangulated.Subcategory (HomotopyCategory C (ComplexShape.up ℤ)) :=
+  HomotopyCategory.subcategoryAcyclic C
+
+-- the derived category identifies to the Verdier quotient of the homotopy category
+-- by the triangulated subcategory of acyclic complexes
+instance : DerivedCategory.Qh.IsLocalization (HomotopyCategory.subcategoryAcyclic C).W :=
+  inferInstance
+-- this follows from the fact that the class `(HomotopyCategory.subcategoryAcyclic C).W`
+-- is the class of quasi-isomorphisms:
+#check HomotopyCategory.quasiIso_eq_subcategoryAcyclic_W
+
+end
+
+/-! # 5. Ongoing works -/
+
+/-! ## 5.1 Ext-groups -/
+
+section
+
+open DerivedCategory
+
+variable {C : Type u} [Category.{v} C] [Abelian C] [HasDerivedCategory.{w} C]
+
+-- This is the functor which sends `X : C` to the cochain complex (seen in the derived
+-- category) with `X` in degree `0`, and `0` in nonzero degrees
+noncomputable example : C ⥤ DerivedCategory C := singleFunctor C 0
+
+-- this functor `singleFunctor C 0` is fully faithful
+noncomputable example (X Y : C) :
+    (X ⟶ Y) ≃ ((singleFunctor C 0).obj X ⟶ (singleFunctor C 0).obj Y) :=
+  equivOfFullyFaithful _
+
+-- the group `Ext^n(X, Y)` could be redefined as:
+example (X Y : C) (n : ℕ) : Type w :=
+  (singleFunctor C 0).obj X ⟶ ((singleFunctor C 0).obj Y)⟦(n : ℤ)⟧
+
+-- if `0 → X₁ → X₂ → X₃ → 0` is a short exact sequence in `C`, then there is
+-- a distinguished triangle `X₁ ⟶ X₂ ⟶ X₃ ⟶ X₁⟦1⟧` in the derived category
+-- (by abuse of notation, we identify object of `C` to their image by `singleFunctor C 0`)
+#check ShortComplex.ShortExact.singleTriangle_distinguished
+
+-- then the assertion that we have "covariant" and "contravariant" long
+-- exact sequences of `Ext` is supported by the fact that in (pre)triangulated
+-- categories, `Hom(-,Y)` and `Hom(X, -)` functors are homological:
+section
+
+open Pretriangulated.Opposite
+
+variable {C : Type*} [Category C] [Preadditive C] [HasZeroObject C] [HasShift C ℤ]
+  [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
+
+instance (Y : Cᵒᵖ) : (preadditiveCoyoneda.obj Y).IsHomological := inferInstance
+
+instance (X : C) : (preadditiveYoneda.obj X).IsHomological := inferInstance
+
+end
+
+end
+
+/-! ## 5.2 t-structures -/
+
+section
+
+open Triangulated DerivedCategory.TStructure
+
+-- the notion of t-structure on a triangulated category
+#check TStructure
+
+variable {C : Type*} [Category C] [Abelian C] [HasDerivedCategory C]
+
+-- the canonical t-structure on the derived category `D(C)`
+example : TStructure (DerivedCategory C) := t
+-- the induced t-structure on the bounded below derived category `D^+(C)`
+example : TStructure (DerivedCategory.Plus C) := DerivedCategory.Plus.TStructure.t
+
+variable {T : Type*} [Category T] [Preadditive T] [HasZeroObject T] [HasShift T ℤ]
+  [∀ (n : ℤ), (shiftFunctor T n).Additive] [Pretriangulated T] [IsTriangulated T]
+
+-- The type class assumption below `[t.HasHeart]` means that we have chosen
+-- a *preadditive* category which identifies to the full subcategory of `T`
+-- consisting of objects that are both ≤ 0 and ≥ 0. This instance
+-- declared in the file `CategoryTheory.Triangulated.TStucture.Homology`
+-- shows that the heart of the `t`-structure is an abelian category:
+noncomputable example (t : TStructure T) [t.HasHeart] : Abelian t.Heart := inferInstance
+
+-- A `HasHeart` instance was set on the canonical `t`-structure on the derived category of `C`:
+-- by "definition", the heart of this `t`-structure is the category `C` itself!
+example : (t : TStructure (DerivedCategory C)).Heart = C := rfl
+
+/-! ### 5.2.3 -/
+
+variable (t : TStructure T)
+
+-- the truncation functors for a `t`-structure
+noncomputable example (n : ℤ) : T ⥤ T := t.truncGE n
+noncomputable example (n : ℤ) : T ⥤ T := t.truncLE n
+
+-- if `a + 1 = b`, this is the distinguished triangle
+-- `(t.truncLE a).obj X ⟶ X ⟶ (t.truncGE b).X ⟶ ((t.truncLE a).obj X)⟦1⟧`
+variable (a b : ℤ) (h : a + 1 = b) (X : T) in
+#check t.triangleLEGE_distinguished a b h X
+
+-- the truncation functors commute:
+noncomputable example (a b : ℤ) :
+    t.truncLE b ⋙ t.truncGE a ≅ t.truncGE a ⋙ t.truncLE b :=
+  t.truncGELEIsoLEGE a b
+
+/-! ### 5.2.4 -/
+-- Given an object `X : T` in a triangulated category `T` equipped with a `t`-structure,
+-- all the truncations of `X` for this `t`-structure fit together in
+-- a spectral object in `T` that is parametrized by the ordered set `ℤt` which is
+-- `ℤ` with `+∞` and `-∞` added.
+noncomputable example (X : T) : SpectralObject T ℤt := t.spectralObject X
+
+end
+
+/-! ## 5.3 Derived functors -/
+
+/-! ### 5.3.1 -/
+-- the notions of left Kan extension and of right derived functors
+#check Functor.IsLeftKanExtension
+#check Functor.IsRightDerivedFunctor
+
+/-! ### 5.3.3 The right derived functor on bounded below derived categories -/
+
+section
+
+variable {C D : Type*} [Category C] [Category D] [Abelian C] [Abelian D]
+  [HasDerivedCategory C] [HasDerivedCategory D] (F : C ⥤ D) [F.Additive]
+  [EnoughInjectives C]
+
+-- the right derived functor of `F` as a functor `D^+(C) ⥤ D^+(D)`
+-- on bounded below derived categories, when `C` has enough injectives
+noncomputable example : DerivedCategory.Plus C ⥤ DerivedCategory.Plus D :=
+    F.rightDerivedFunctorPlus
+
+-- the assertion that `F.rightDerivedFunctorPlus` is indeed a right derived functor
+instance : F.rightDerivedFunctorPlus.IsRightDerivedFunctor
+  F.rightDerivedFunctorPlusUnit (HomotopyCategory.Plus.quasiIso C) := inferInstance
+
+-- the bounded below derived category `D^+(C)` is equivalent to the homotopy category
+-- of bounded below complexes of injective objects.
+noncomputable instance :
+    IsEquivalence (((Injectives.ι C).mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh)) :=
+  inferInstance
+
+-- the existence of derived functor follows from the existence of
+-- a right derivability structure, which is part of a very abstract framework
+-- in order to construct and study derived functors
+instance : (Injectives.localizerMorphism C).IsRightDerivabilityStructure := inferInstance
+-- this notion involves the concept of Guitart exact squares:
+#check TwoSquare.GuitartExact
+-- apart from very abstract category theory, the injective derivability structure
+-- relies on factorization lemmas in the category of cochain complexes, which
+-- include the following lemma, which assert the existence of injective resolutions
+-- of bounded below cochain complexes:
+#check CochainComplex.exists_injective_resolution
+
+end
+
+/-! ### 5.3.4 The product derivability structure
+See the file `CategoryTheory.Localization.DerivabilityStructure.Product` -/
+
+/-! ## 5.4 Spectral sequences -/
+
+/-! ### 5.4.1 Definitions -/
+
+#check SpectralSequence
+#check E₂CohomologicalSpectralSequence
+
+/-! ### 5.4.2 Stabilization -/
+
+#check SpectralSequence.HasPageInfinityAt
+
+/-! ### 5.4.3 Convergence -/
+
+#check SpectralSequence.StronglyConvergesTo
+
+-- the 5-terms exact sequence in low degrees of a first
+-- quadrant E₂-cohomological spectral sequence
+#check CohomologicalSpectralSequenceNat.lowDegreesComposableArrows_exact
+
+/-! ### 5.4.4 Construction of spectral sequences -/
+
+-- the notions of spectral objects in triangulated categories and in abelian categories
+#check Triangulated.SpectralObject
+#check Abelian.SpectralObject
+
+section
+
+variable {A T : Type*} [Category A] [Abelian A]
+  [Category T] [Preadditive T] [HasZeroObject T] [HasShift T ℤ]
+  [∀ (n : ℤ), (shiftFunctor T n).Additive] [Pretriangulated T]
+
+-- If `X` is a spectral object in a pretriangulated category `T` and `F : T ⥤ A`
+-- is a homological functor, applying `F` in all degrees to `X` gives
+-- a spectral object in the abelian category `A`.
+-- (The assumption `F.ShiftSequence ℤ` is the data of shifted versions of `F` in
+-- all degrees `n` which may have better definitional properties than the
+-- functors which send `Y : T` to `F.obj (Y⟦n⟧)`. In some sense `F` is the `H^0`,
+-- and the functors `F.shift n` given by the "shift sequence" are the `H^n`.)
+noncomputable example (X : Triangulated.SpectralObject T ℤt) (F : T ⥤ A)
+    [F.IsHomological] [F.ShiftSequence ℤ] :
+  Abelian.SpectralObject A ℤt := X.mapHomologicalFunctor F
+
+end
+
+/-! ### 5.4.5 Examples of spectral sequences -/
+
+section GrothendieckSpectralSequence
+
+open DerivedCategory.Plus
+
+-- Let `F : A ⥤ B` and `G : B ⥤ C` be additive functors between abelian categories.
+-- We assume that `A` and `B` have enough injectives.
+variable {A B C : Type*} [Category A] [Category B] [Category C]
+  [Abelian A] [Abelian B] [Abelian C] [EnoughInjectives A] [EnoughInjectives B]
+  [HasDerivedCategory A] [HasDerivedCategory B] [HasDerivedCategory C]
+  (F : A ⥤ B) [F.Additive] (G : B ⥤ C) [G.Additive]
+
+-- The canonical natural transformation `R(F ⋙ G) ⟶ RF ⋙ RG`:
+noncomputable example :
+    (F ⋙ G).rightDerivedFunctorPlus ⟶
+      F.rightDerivedFunctorPlus ⋙ G.rightDerivedFunctorPlus :=
+  Functor.rightDerivedFunctorPlusCompNatTrans (Iso.refl _)
+
+-- We assume that for any injective object `I` of `A`, `F(I)` is acyclic for `G`:
+variable [∀ (I : Injectives A), IsIso (G.rightDerivedFunctorPlusUnit.app
+  ((HomotopyCategory.Plus.singleFunctor B 0).obj (F.obj ((Injectives.ι A).obj I))))]
+
+-- We now have an isomorphism `R(F ⋙ G) ≅ RF ⋙ RG`:
+noncomputable example :
+    (F ⋙ G).rightDerivedFunctorPlus ≅
+      F.rightDerivedFunctorPlus ⋙ G.rightDerivedFunctorPlus :=
+  asIso (Functor.rightDerivedFunctorPlusCompNatTrans (Iso.refl _))
+
+-- Fix an object in `A`
+variable (X : A)
+
+-- This is the first quadrant E₂-cohomological spectral sequence of
+-- composition of right derived functors (Grothendieck):
+noncomputable example : E₂CohomologicalSpectralSequenceNat C :=
+    grothendieckSpectralSequence F G X
+
+-- `E₂^{p, q}` identifies to `(R^p G)(R^q F(X))`
+noncomputable example (p q : ℕ) :
+    ((grothendieckSpectralSequence F G X).page 2).X ⟨p, q⟩ ≅
+      (G.rightDerived' p).obj ((F.rightDerived' q).obj X) := by
+  apply grothendieckSpectralSequenceE₂Iso
+
+-- the spectral sequence converges to `R^{p + q}(F ⋙ G)(X)`
+noncomputable example (n : ℕ) :
+    (grothendieckSpectralSequence F G X).StronglyConvergesToInDegree
+      CohomologicalSpectralSequenceNat.stripes n
+      (((F ⋙ G).rightDerived' n).obj X) := by
+  apply convergesAt
+
+end GrothendieckSpectralSequence
 
 end FormalizationOfDerivedCategories
