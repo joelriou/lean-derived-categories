@@ -16,6 +16,13 @@ open CategoryTheory Limits
 
 namespace FormalizationOfDerivedCategories
 
+/-! # 1. Introduction -/
+
+#check DerivedCategory
+#check DerivedCategory.Plus.grothendieckSpectralSequence
+
+#print axioms DerivedCategory.Plus.grothendieckSpectralSequence
+
 /-! # 2. Homology and diagram chasing in general abelian categories -/
 
 /-! # 2.1 The homology refactor -/
