@@ -571,7 +571,7 @@ instance : F.rightDerivedFunctorPlus.IsRightDerivedFunctor
 -- the bounded below derived category `D^+(C)` is equivalent to the homotopy category
 -- of bounded below complexes of injective objects.
 noncomputable instance :
-    IsEquivalence (((Injectives.ι C).mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh)) :=
+    (((Injectives.ι C).mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh)).IsEquivalence :=
   inferInstance
 
 -- the existence of derived functor follows from the existence of
@@ -672,18 +672,20 @@ variable (X : A)
 noncomputable example : E₂CohomologicalSpectralSequenceNat C :=
     grothendieckSpectralSequence F G X
 
+open grothendieckSpectralSequence
+
 -- `E₂^{p, q}` identifies to `(R^p G)(R^q F(X))`
 noncomputable example (p q : ℕ) :
     ((grothendieckSpectralSequence F G X).page 2).X ⟨p, q⟩ ≅
       (G.rightDerived' p).obj ((F.rightDerived' q).obj X) := by
-  apply grothendieckSpectralSequenceE₂Iso
+  apply page₂Iso
 
 -- the spectral sequence converges to `R^{p + q}(F ⋙ G)(X)`
-noncomputable example (n : ℕ) :
-    (grothendieckSpectralSequence F G X).StronglyConvergesToInDegree
-      CohomologicalSpectralSequenceNat.stripes n
-      (((F ⋙ G).rightDerived' n).obj X) := by
-  apply convergesAt
+noncomputable example :
+    (grothendieckSpectralSequence F G X).StronglyConvergesTo
+      CohomologicalSpectralSequenceNat.stripes
+      (fun n => ((F ⋙ G).rightDerived' n).obj X) := by
+  apply stronglyConvergesTo
 
 end GrothendieckSpectralSequence
 
