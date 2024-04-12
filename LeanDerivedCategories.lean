@@ -18,9 +18,13 @@ namespace FormalizationOfDerivedCategories
 
 /-! # 1. Introduction -/
 
+-- these are the two main definitions in this project
+-- * the derived category of an abelian category
 #check DerivedCategory
+-- * the Grothendieck spectral sequence for the composition of right derived functors
 #check DerivedCategory.Plus.grothendieckSpectralSequence
 
+-- We use classical logic
 #print axioms DerivedCategory.Plus.grothendieckSpectralSequence
 
 /-! # 2. Homology and diagram chasing in general abelian categories -/
