@@ -8,6 +8,7 @@ by Joël Riou.
 import Mathlib.Algebra.Homology.DerivedCategory.LargeExt
 import Mathlib.Algebra.Homology.SpectralSequence.Examples.Grothendieck
 import Mathlib.CategoryTheory.Abelian.RefinementsExtra
+import Mathlib.CategoryTheory.Localization.FiniteProducts
 import Mathlib.CategoryTheory.Triangulated.Yoneda
 
 universe w v u
@@ -152,7 +153,15 @@ example (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂) (W₁ : MorphismProperty C
 --   induce the same morphism in the localized category
 #check MorphismProperty.map_eq_iff_postcomp
 
-/-! ## 3.7 Calculus of fractions -/
+/-! ## 3.7 Preadditive structure -/
+
+-- the existence of finite products in the localized category can be
+-- deduced from the existence of finite products in the original category
+-- under the condition that `W` contains identities and is stable
+-- by finite products
+instance (W : MorphismProperty C) [HasFiniteProducts C]
+    [W.IsStableUnderFiniteProducts] [W.ContainsIdentities] :
+    HasFiniteProducts W.Localization := inferInstance
 
 -- the localized category of a preadditive is preadditive when
 -- there is a calculus of left fractions
