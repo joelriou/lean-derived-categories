@@ -3,6 +3,10 @@
 This files accompanies the paper _Formalization of derived categories in Lean/Mathlib_
 by Joël Riou.
 
+In VS code:
+* Hover the pointer on names of definitions below to get the full statement
+* Right-click + Go to Definition to see the code of the definition in context
+
 -/
 
 import Mathlib.Algebra.Homology.DerivedCategory.LargeExt
@@ -19,7 +23,7 @@ namespace FormalizationOfDerivedCategories
 
 /-! # 1. Introduction -/
 
--- these are the two main definitions in this project
+-- These are the two main definitions in this project:
 -- * the derived category of an abelian category
 #check DerivedCategory
 -- * the Grothendieck spectral sequence for the composition of right derived functors
@@ -63,7 +67,7 @@ example {X₁ X₂ X₃ : Ab} (f : X₁ ⟶ X₂) (g : X₂ ⟶ X₃) (w : f ≫
 #check epi_iff_surjective_up_to_refinements
 #check ShortComplex.exact_iff_exact_up_to_refinements
 
-/-! ## 2.2.3 -/
+/-! ### 2.2.3 -/
 section
 
 open Abelian.refinementsTopology
@@ -84,12 +88,16 @@ section
 variable {C C₁ C₂ D D₁ D₂ E : Type*} [Category C] [Category C₁] [Category C₂]
   [Category D] [Category D₁] [Category D₂] [Category E]
 
--- `MorphismProperty C` is the type of classes of morphisms
+/-! ## 3.1 -/
+
+-- `MorphismProperty C` is the type of classes of morphisms in a category `C`
 #check MorphismProperty -- introduced in mathlib by Andrew Yang in 2022
 
-/-! ## 3.1 -/
 -- The functor `W.Q : C ⥤ W.Localization` to the constructed localized category. -/
 example (W : MorphismProperty C) : C ⥤ W.Localization := W.Q
+
+-- the localization functor `W.Q` sends morphisms in `W` to isomorphisms
+example (W : MorphismProperty C) : W.IsInvertedBy W.Q := W.Q_inverts
 
 /-! ## 3.2 -/
 -- The functor `W.Q` satisfies the (strict) universal property of the localization.
@@ -98,15 +106,15 @@ example (W : MorphismProperty C) : C ⥤ W.Localization := W.Q
 /-! ## 3.3 -/
 
 -- The functor `W.Q` to the constructed localized category satisfies the (weaker)
--- predicate `Function.IsLocalization` which characterizes the localized
+-- predicate `Functor.IsLocalization` which characterizes the localized
 -- category up to equivalence
 example (W : MorphismProperty C) : W.Q.IsLocalization W := inferInstance
 
 /-! ## Lemma 3.4
 If `L : C ⥤ D` is a localization functor for a class of morphisms `W`,
 then for any category `E`, the composition with `L` induces an equivalence of categories
-from the category of functors `D ⥤ E` into the full subcategory of `C ⥤ E`
-consisting of functors which inverts `W`. -/
+from the category of functors `D ⥤ E` to the full subcategory of `C ⥤ E`
+consisting of functors which invert `W`. -/
 noncomputable example (L : C ⥤ D) (W : MorphismProperty C) [L.IsLocalization W] :
     (D ⥤ E) ≌ W.FunctorsInverting E :=
   Localization.functorEquivalence L W E
@@ -123,7 +131,7 @@ example (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂) (W₁ : MorphismProperty C
     [L₁.IsLocalization W₁] [L₂.IsLocalization W₂] :
     (L₁.prod L₂).IsLocalization (W₁.prod W₂) := inferInstance
 
--- The "proof" of two statements above are found automatically by
+-- The "proof" of the two statements above are found automatically by
 -- the type class inference system. The corresponding declarations are:
 #check Functor.IsLocalization.op
 #check Functor.IsLocalization.prod
@@ -131,7 +139,7 @@ example (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂) (W₁ : MorphismProperty C
 -- stability by composition (Lemma 3.5.3)
 #check Functor.IsLocalization.comp
 -- the reciprocal statement of 3.5.3
-#check Functor.IsLocalization.comp
+#check Functor.IsLocalization.of_comp
 
 /-! ## 3.6 Calculus of fractions -/
 
@@ -149,8 +157,9 @@ example (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂) (W₁ : MorphismProperty C
 -- * Characterizations of tuples of left fractions which induce the
 --   same morphism in the localized category
 #check MorphismProperty.LeftFraction.map_eq_iff
--- * Characterization of tuples of morphisms in the original category which
---   induce the same morphism in the localized category
+
+-- Moreover, we may characterize tuples of morphisms in the original category
+-- which induce the same morphism in the localized category
 #check MorphismProperty.map_eq_iff_postcomp
 
 /-! ## 3.7 Preadditive structure -/
@@ -163,7 +172,7 @@ instance (W : MorphismProperty C) [HasFiniteProducts C]
     [W.IsStableUnderFiniteProducts] [W.ContainsIdentities] :
     HasFiniteProducts W.Localization := inferInstance
 
--- the localized category of a preadditive is preadditive when
+-- the localized category of a preadditive category is preadditive when
 -- there is a calculus of left fractions
 noncomputable instance (W : MorphismProperty C) [Preadditive C]
     [W.HasLeftCalculusOfFractions] :
@@ -195,17 +204,17 @@ variable (W : MorphismProperty C)
 example : Type u := W.Localization
 
 -- However, the type of morphisms between two objects in `W.Localization`
--- is not in `max v` general, it is in the universe `max u v`:
+-- is not in `max v` in general, it is in the universe `max u v`:
 example (X Y : W.Localization) : Type (max u v) := X ⟶ Y
 
--- the same problems happens even when there is a calculus of fractions:
+-- The same problems happens even when there is a calculus of fractions:
 -- because of the data of an intermediate object, the type of left fractions
 -- from `X` to `Y` is in `Type (max u v)`:
 example (X Y : C) : Type (max u v) := W.LeftFraction X Y
 
 /-! ### 3.8.3
-I formalized the fundamental lemma of homotopical algebra 3.8.3.1 in lean 3,
-it appeared in the file `src/for_mathlib/algebraic_topology/homotopical_algebra`
+I formalized the fundamental lemma of homotopical algebra 3.8.3.1 in lean 3, it appeared
+in the file `src/for_mathlib/algebraic_topology/homotopical_algebra/fundamental_lemma`
 in the project at https://github.com/joelriou/homotopical_algebra
 -/
 
@@ -234,7 +243,7 @@ section
 variable {C : Type u} [Category.{v} C] [Abelian C]
 
 -- If we do not make any particular efforts, morphisms in the derived
--- category are going to be in `max u v`.
+-- category of `C` are going to be in `Type (max u v)`.
 example : HasDerivedCategory.{max u v} C :=
   MorphismProperty.HasLocalization.standard _
 
@@ -256,9 +265,12 @@ example : IsTriangulated (DerivedCategory C) := inferInstance
 -- the homotopy category, and the derived category
 example : CochainComplex C ℤ ⥤ HomotopyCategory C (ComplexShape.up ℤ) :=
   HomotopyCategory.quotient _ _
+
 example : HomotopyCategory C (ComplexShape.up ℤ) ⥤ DerivedCategory C :=
   DerivedCategory.Qh
-example : CochainComplex C ℤ ⥤ DerivedCategory C := DerivedCategory.Q
+
+example : CochainComplex C ℤ ⥤ DerivedCategory C :=
+  DerivedCategory.Q
 
 -- these functors form a commutative triangle (up to isomorphisms):
 example : HomotopyCategory.quotient C _ ⋙ DerivedCategory.Qh ≅ DerivedCategory.Q :=
@@ -312,18 +324,24 @@ noncomputable example : HasShift (HomotopyCategory C (ComplexShape.up ℤ)) ℤ 
 
 /-! ### 4.2.8 Functors which commute to the shift. -/
 
-variable (F : C ⥤ D) [F.Additive]
+-- The functor `CochainComplex C ℤ ⥤ HomotopyCategory C (ComplexShape.up ℤ)`
+-- commutes with the shift
+noncomputable example : (HomotopyCategory.quotient C (ComplexShape.up ℤ)).CommShift ℤ :=
+  inferInstance
 
--- the functors induced by an additive functor on categories of cochain complex or
--- on homotopy categories commute to shift
-example : (F.mapHomologicalComplex (ComplexShape.up ℤ)).CommShift ℤ := inferInstance
-noncomputable example : (F.mapHomotopyCategory (ComplexShape.up ℤ)).CommShift ℤ := inferInstance
-
--- this not only means that up to isomorphisms, these functors commute with the
+-- this not only means that up to isomorphisms, this functor commute with the
 -- shift by any `a : ℤ`, but also that these isomorphisms satisfy certain compatibilites:
 #check Functor.CommShift.zero
 #check Functor.CommShift.add
 
+-- Another example: the functors induced by an additive functor on categories
+-- of cochain complexes and on homotopy categories commute to the shift
+example (F : C ⥤ D) [F.Additive] :
+    (F.mapHomologicalComplex (ComplexShape.up ℤ)).CommShift ℤ := inferInstance
+noncomputable example (F : C ⥤ D) [F.Additive] :
+    (F.mapHomotopyCategory (ComplexShape.up ℤ)).CommShift ℤ := inferInstance
+
+end
 /-! ### 4.2.9 Quotient and localized shift  -/
 
 -- the quotient and the localized shift are given by these declarations
@@ -332,6 +350,20 @@ noncomputable example : (F.mapHomotopyCategory (ComplexShape.up ℤ)).CommShift 
 
 -- both rely on a more abstract construction
 #check HasShift.induced
+
+section
+
+variable {C : Type*} [Category C] [Abelian C] [HasDerivedCategory C]
+
+-- The functor `Q : CochainComplex C ℤ ⥤ DerivedCategory C` commutes with the shift
+noncomputable instance : (DerivedCategory.Q (C := C)).CommShift ℤ := inferInstance
+
+-- The natural isomorphism
+-- `HomotopyCategory.quotient C _ ⋙ DerivedCategory.Qh ≅ DerivedCategory.Q`
+-- between functors `CochainComplex C ℤ ⥤ DerivedCategory C`
+-- commutes with the shift
+example : NatTrans.CommShift (DerivedCategory.quotientCompQhIso C).hom ℤ :=
+  inferInstance
 
 end
 /-! ## 4.3 The triangulated structure on the homotopy category -/
@@ -347,7 +379,7 @@ end
 -- the standard triangle attached to a morphism in the category `CochainComplex C ℤ`
 #check CochainComplex.mappingCone.triangle
 
-/-! ### 4.3.3/4.3.4 Calculus of cochain/The octahedron axiom -/
+/-! ### 4.3.3/4.3.4 Calculus of cochains/The octahedron axiom -/
 section
 
 open CochainComplex HomComplex
@@ -396,6 +428,15 @@ noncomputable example : Cochain (mappingCone f) (mappingCone f) 0 :=
 
 example (α : Cochain M K n) : (α.comp (inl f) rfl).comp (fst f).1 (by omega) = α := by
   simp -- replace by `simp?` to see the names of the lemmas that are automatically used
+
+-- given two composable morphisms `f` and `g` in the category of cochain complexes,
+-- this is the main lemma in the proof that `mappingCone g` is a retract by deformation
+-- of the mapping cone of `mappingCone f ⟶ mappingCone (f ≫ g)`
+#check MappingConeCompHomotopyEquiv.homotopyInvHomId
+-- in the proof, the lemmas `mappingCone.ext_to_iff` and `mappingCone.ext_from_iff`
+-- are used in order to transform a goal involving an equality between morphisms
+-- from the mapping cone of `mappingCone f ⟶ mappingCone (f ≫ g)` to itself
+-- into a conjunction of multiple identities that are mostly handled by automation
 
 end
 
@@ -447,6 +488,10 @@ instance : DerivedCategory.Qh.IsLocalization (HomotopyCategory.subcategoryAcycli
 -- this follows from the fact that the class `(HomotopyCategory.subcategoryAcyclic C).W`
 -- is the class of quasi-isomorphisms:
 #check HomotopyCategory.quasiIso_eq_subcategoryAcyclic_W
+-- the proof of this lemma uses the fact that the homology functor on the homotopy
+-- category is a homological functor:
+example : (HomotopyCategory.homologyFunctor C (ComplexShape.up ℤ) 0).IsHomological :=
+  inferInstance
 
 end
 
@@ -478,9 +523,6 @@ example (X Y : C) (n : ℕ) : Type w :=
 -- (by abuse of notation, we identify object of `C` to their image by `singleFunctor C 0`)
 #check ShortComplex.ShortExact.singleTriangle_distinguished
 
--- then the assertion that we have "covariant" and "contravariant" long
--- exact sequences of `Ext` is supported by the fact that in (pre)triangulated
--- categories, `Hom(-,Y)` and `Hom(X, -)` functors are homological:
 section
 
 open Pretriangulated.Opposite
@@ -488,9 +530,13 @@ open Pretriangulated.Opposite
 variable {C : Type*} [Category C] [Preadditive C] [HasZeroObject C] [HasShift C ℤ]
   [∀ (n : ℤ), (shiftFunctor C n).Additive] [Pretriangulated C]
 
-instance (Y : Cᵒᵖ) : (preadditiveCoyoneda.obj Y).IsHomological := inferInstance
+-- then the assertion that we have "covariant" and "contravariant" long
+-- exact sequences of `Ext` is supported by the fact that in (pre)triangulated
+-- categories, `Hom(-,Y)` and `Hom(X, -)` functors are homological:
 
-instance (X : C) : (preadditiveYoneda.obj X).IsHomological := inferInstance
+instance (Y : C) : (preadditiveYoneda.obj Y).IsHomological := inferInstance
+
+instance (X : Cᵒᵖ) : (preadditiveCoyoneda.obj X).IsHomological := inferInstance
 
 end
 
@@ -571,7 +617,7 @@ variable {C D : Type*} [Category C] [Category D] [Abelian C] [Abelian D]
 -- the right derived functor of `F` as a functor `D^+(C) ⥤ D^+(D)`
 -- on bounded below derived categories, when `C` has enough injectives
 noncomputable example : DerivedCategory.Plus C ⥤ DerivedCategory.Plus D :=
-    F.rightDerivedFunctorPlus
+  F.rightDerivedFunctorPlus
 
 -- the assertion that `F.rightDerivedFunctorPlus` is indeed a right derived functor
 instance : F.rightDerivedFunctorPlus.IsRightDerivedFunctor
@@ -605,7 +651,16 @@ See the file `CategoryTheory.Localization.DerivabilityStructure.Product` -/
 /-! ### 5.4.1 Definitions -/
 
 #check SpectralSequence
+
+-- pages of cohomological spectral sequences are indexed by `ℤ × ℤ`,
+-- and differentials are of bidegree `(r, 1 - r)`.
+#check CohomologicalSpectralSequence
 #check E₂CohomologicalSpectralSequence
+
+-- for first quadrant spectral sequence, we can use the following definitions
+-- for which the pages are indexed by `ℕ × ℕ`.
+#check CohomologicalSpectralSequenceNat
+#check E₂CohomologicalSpectralSequenceNat
 
 /-! ### 5.4.2 Stabilization -/
 
@@ -627,20 +682,20 @@ See the file `CategoryTheory.Localization.DerivabilityStructure.Product` -/
 
 section
 
-variable {A T : Type*} [Category A] [Abelian A]
+variable {C T : Type*} [Category C] [Abelian C]
   [Category T] [Preadditive T] [HasZeroObject T] [HasShift T ℤ]
   [∀ (n : ℤ), (shiftFunctor T n).Additive] [Pretriangulated T]
 
--- If `X` is a spectral object in a pretriangulated category `T` and `F : T ⥤ A`
+-- If `E` is a spectral object in a pretriangulated category `T` and `F : T ⥤ C`
 -- is a homological functor, applying `F` in all degrees to `X` gives
--- a spectral object in the abelian category `A`.
+-- a spectral object in the abelian category `C`.
 -- (The assumption `F.ShiftSequence ℤ` is the data of shifted versions of `F` in
 -- all degrees `n` which may have better definitional properties than the
 -- functors which send `Y : T` to `F.obj (Y⟦n⟧)`. In some sense `F` is the `H^0`,
 -- and the functors `F.shift n` given by the "shift sequence" are the `H^n`.)
-noncomputable example (X : Triangulated.SpectralObject T ℤt) (F : T ⥤ A)
+noncomputable example (E : Triangulated.SpectralObject T ℤt) (F : T ⥤ C)
     [F.IsHomological] [F.ShiftSequence ℤ] :
-  Abelian.SpectralObject A ℤt := X.mapHomologicalFunctor F
+  Abelian.SpectralObject C ℤt := E.mapHomologicalFunctor F
 
 end
 
@@ -679,7 +734,7 @@ variable (X : A)
 -- This is the first quadrant E₂-cohomological spectral sequence of
 -- composition of right derived functors (Grothendieck):
 noncomputable example : E₂CohomologicalSpectralSequenceNat C :=
-    grothendieckSpectralSequence F G X
+  grothendieckSpectralSequence F G X
 
 open grothendieckSpectralSequence
 
