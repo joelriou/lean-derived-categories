@@ -3,6 +3,8 @@
 This files accompanies the paper _Formalization of derived categories in Lean/Mathlib_
 by Joël Riou.
 
+https://hal.science/hal-04546712
+
 In VS code:
 * Hover the pointer on names of definitions below to get the full statement
 * Right-click + Go to Definition to see the code of the definition in context

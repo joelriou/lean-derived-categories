@@ -1,7 +1,8 @@
 # Formalization of derived categories in Lean/mathlib
 
 This project contains a Lean file [LeanDerivedCategories.lean](https://github.com/joelriou/lean-derived-categories/blob/main/LeanDerivedCategories.lean)
-which accompanies the paper by Joël Riou. This file follows the same structure as the paper and is meant to facilitate the cross-references between the mathematical text and the corresponding definitions in the Lean code, which is part of the mathlib branch [jriou_localization](https://github.com/leanprover-community/mathlib4/pull/4197).
+which accompanies the paper [Formalization of derived categories in Lean/Mathlib](https://hal.science/hal-04546712) by Joël Riou.
+This file follows the same structure as the paper and is meant to facilitate the cross-references between the mathematical text and the corresponding definitions in the Lean code, which is part of the mathlib branch [jriou_localization](https://github.com/leanprover-community/mathlib4/pull/4197).
 
 ## Installation instructions
 
