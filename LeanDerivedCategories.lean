@@ -389,7 +389,7 @@ open CochainComplex HomComplex
 variable {C : Type*} [Category C] [Preadditive C] (K L M : CochainComplex C ℤ) (n : ℤ)
   [HasBinaryBiproducts C]
 
--- the type of cochain and of cocycles of a certain degree `n : ℤ`
+-- the type of cochains and of cocycles of a certain degree `n : ℤ`
 -- between two cochain complexes
 #check Cochain K L n
 #check Cocycle K L n
