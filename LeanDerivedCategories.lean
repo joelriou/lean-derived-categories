@@ -331,7 +331,7 @@ noncomputable example : HasShift (HomotopyCategory C (ComplexShape.up ℤ)) ℤ 
 noncomputable example : (HomotopyCategory.quotient C (ComplexShape.up ℤ)).CommShift ℤ :=
   inferInstance
 
--- this not only means that up to isomorphisms, this functor commute with the
+-- this not only means that up to isomorphisms, this functor commutes with the
 -- shift by any `a : ℤ`, but also that these isomorphisms satisfy certain compatibilites:
 #check Functor.CommShift.zero
 #check Functor.CommShift.add
