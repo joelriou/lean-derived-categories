@@ -249,7 +249,7 @@ variable {C : Type u} [Category.{v} C] [Abelian C]
 example : HasDerivedCategory.{max u v} C :=
   MorphismProperty.HasLocalization.standard _
 
--- In what follows, we assyme `[HasDerivedCategory.{w} C]` for a certain universe `w`.
+-- In what follows, we assume `[HasDerivedCategory.{w} C]` for a certain universe `w`.
 variable [HasDerivedCategory.{w} C]
 
 -- The main result of the paper is the formalization of the triangulated
