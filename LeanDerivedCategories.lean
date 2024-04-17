@@ -311,7 +311,7 @@ the rest of the statements were obtained automatically.
 
 -- Using `shiftFunctorAdd'`
 #check shiftFunctorAdd'
--- the "pentagon" no longer involve `eqToHom`:
+-- the "pentagon" no longer involves `eqToHom`:
 #check shiftFunctorAdd'_assoc
 
 /-! ### 4.2.6/4.2.7 The shift on cochain complexes and on the homotopy category -/
