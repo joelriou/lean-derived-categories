@@ -186,7 +186,7 @@ end
 /-! ## 3.8 Universe issues -/
 section
 
-/-! ### 3.8.1 -/
+/-! ### 3.8.2 -/
 
 variable {C : Type u} [Category.{v} C]
 
@@ -196,7 +196,7 @@ example : Type u := C
 -- * the type of morphisms `X ⟶ Y` between two objects in `C` is in the universe `v`:
 example (X Y : C) : Type v := X ⟶ Y
 
-/-! ### 3.8.2 -/
+/-! ### 3.8.3 -/
 
 variable (W : MorphismProperty C)
 
@@ -214,13 +214,13 @@ example (X Y : W.Localization) : Type (max u v) := X ⟶ Y
 -- from `X` to `Y` is in `Type (max u v)`:
 example (X Y : C) : Type (max u v) := W.LeftFraction X Y
 
-/-! ### 3.8.3
+/-! ### 3.8.4
 I formalized the fundamental lemma of homotopical algebra 3.8.3.1 in lean 3, it appeared
 in the file `src/for_mathlib/algebraic_topology/homotopical_algebra/fundamental_lemma`
 in the project at https://github.com/joelriou/homotopical_algebra
 -/
 
-/-! ### 3.8.5 -/
+/-! ### 3.8.6 -/
 
 -- We may introduce the assumption that we have chosen
 -- a localized category such that the morphisms are in the universe `w` as follows.
@@ -231,8 +231,8 @@ example : W.Q'.IsLocalization W := inferInstance
 -- such that morphisms in `W.Localization'` are in the universe `w`
 example (X Y : W.Localization') : Type w := X ⟶ Y
 
-/-! ### 3.8.6
-This is 3.8.5 in the particular case of derived categories. -/
+/-! ### 3.8.7
+This is 3.8.6 in the particular case of derived categories. -/
 
 variable [Abelian C] [HasDerivedCategory.{w} C]
 example (X Y : DerivedCategory C) : Type w := X ⟶ Y
