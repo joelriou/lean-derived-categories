@@ -156,7 +156,7 @@ example (L₁ : C₁ ⥤ D₁) (L₂ : C₂ ⥤ D₂) (W₁ : MorphismProperty C
 -- Lemma 3.6.1: Assuming there is a calculus of left fractions,
 -- * Morphisms in the localized category can be represented by left fractions
 #check Localization.exists_leftFraction
--- * Characterizations of tuples of left fractions which induce the
+-- * Characterization of tuples of left fractions which induce the
 --   same morphism in the localized category
 #check MorphismProperty.LeftFraction.map_eq_iff
 
@@ -206,7 +206,7 @@ variable (W : MorphismProperty C)
 example : Type u := W.Localization
 
 -- However, the type of morphisms between two objects in `W.Localization`
--- is not in `max v` in general, it is in the universe `max u v`:
+-- is not in the universe `v` in general, it is in the universe `max u v`:
 example (X Y : W.Localization) : Type (max u v) := X ⟶ Y
 
 -- The same problems happens even when there is a calculus of fractions:
@@ -337,7 +337,7 @@ noncomputable example : (HomotopyCategory.quotient C (ComplexShape.up ℤ)).Comm
 #check Functor.CommShift.add
 
 -- Another example: the functors induced by an additive functor on categories
--- of cochain complexes and on homotopy categories commute to the shift
+-- of cochain complexes and on homotopy categories commute to the shifts
 example (F : C ⥤ D) [F.Additive] :
     (F.mapHomologicalComplex (ComplexShape.up ℤ)).CommShift ℤ := inferInstance
 noncomputable example (F : C ⥤ D) [F.Additive] :
@@ -404,7 +404,7 @@ example (φ₁ φ₂ : K ⟶ L) :
 variable (f : K ⟶ L)
 
 -- the mapping cone of a morphism `f : K ⟶ L` of cochain complexes
-noncomputable example (f : K ⟶ L)  :
+noncomputable example (f : K ⟶ L) :
     CochainComplex C ℤ :=
   mappingCone f
 
@@ -433,7 +433,8 @@ example (α : Cochain M K n) : (α.comp (inl f) rfl).comp (fst f).1 (by omega) =
 
 -- given two composable morphisms `f` and `g` in the category of cochain complexes,
 -- this is the main lemma in the proof that `mappingCone g` is a retract by deformation
--- of the mapping cone of `mappingCone f ⟶ mappingCone (f ≫ g)`
+-- of the mapping cone of `mappingCone f ⟶ mappingCone (f ≫ g)` (and this
+-- is used in order to prove the octahedron axiom)
 #check MappingConeCompHomotopyEquiv.homotopyInvHomId
 -- in the proof, the lemmas `mappingCone.ext_to_iff` and `mappingCone.ext_from_iff`
 -- are used in order to transform a goal involving an equality between morphisms
@@ -522,7 +523,7 @@ example (X Y : C) (n : ℕ) : Type w :=
 
 -- if `0 → X₁ → X₂ → X₃ → 0` is a short exact sequence in `C`, then there is
 -- a distinguished triangle `X₁ ⟶ X₂ ⟶ X₃ ⟶ X₁⟦1⟧` in the derived category
--- (by abuse of notation, we identify object of `C` to their image by `singleFunctor C 0`)
+-- (by abuse of notation, we identify an object of `C` to its image by `singleFunctor C 0`)
 #check ShortComplex.ShortExact.singleTriangle_distinguished
 
 section
@@ -631,9 +632,11 @@ noncomputable instance :
     (((Injectives.ι C).mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh)).IsEquivalence :=
   inferInstance
 
--- the existence of derived functor follows from the existence of
+-- the existence of right derived functors follows from the existence of
 -- a right derivability structure, which is part of a very abstract framework
--- in order to construct and study derived functors
+-- introduced by Bruno Kahn and Georges Maltsiniotis (*Structures de dérivabilité*,
+-- Adv. Math. 218 (4), p. 1286--1318 (2008)) in order
+-- to construct and study derived functors
 instance : (Injectives.localizerMorphism C).IsRightDerivabilityStructure := inferInstance
 -- this notion involves the concept of Guitart exact squares:
 #check TwoSquare.GuitartExact
