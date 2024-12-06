@@ -1,13 +1,9 @@
 name = "lean-derived-categories"
 version = "0.1.0"
-defaultTargets = ["lean-derived-categories"]
+defaultTargets = ["LeanDerivedCategories"]
 
 [[lean_lib]]
 name = "LeanDerivedCategories"
-
-[[lean_exe]]
-name = "lean-derived-categories"
-root = "LeanDerivedCategories"
 
 [[require]]
 name = "mathlib"
