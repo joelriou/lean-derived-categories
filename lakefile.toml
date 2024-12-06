@@ -1,0 +1,16 @@
+name = "lean-derived-categories"
+version = "0.1.0"
+defaultTargets = ["lean-derived-categories"]
+
+[[lean_lib]]
+name = "LeanDerivedCategories"
+
+[[lean_exe]]
+name = "lean-derived-categories"
+root = "LeanDerivedCategories"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "60964b5825529e3d9828dd333d7dd33f694ab1ac"
+

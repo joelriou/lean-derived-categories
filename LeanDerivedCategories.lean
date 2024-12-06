@@ -11,7 +11,7 @@ In VS code:
 
 -/
 
-import Mathlib.Algebra.Homology.DerivedCategory.LargeExt
+import Mathlib.Algebra.Homology.DerivedCategory.Ext.ExactSequences
 import Mathlib.Algebra.Homology.SpectralSequence.Examples.Grothendieck
 import Mathlib.CategoryTheory.Abelian.RefinementsExtra
 import Mathlib.CategoryTheory.Localization.FiniteProducts
@@ -515,7 +515,7 @@ noncomputable example : C ⥤ DerivedCategory C := singleFunctor C 0
 -- this functor `singleFunctor C 0` is fully faithful
 noncomputable example (X Y : C) :
     (X ⟶ Y) ≃ ((singleFunctor C 0).obj X ⟶ (singleFunctor C 0).obj Y) :=
-  equivOfFullyFaithful _
+  (Functor.FullyFaithful.ofFullyFaithful (singleFunctor C 0)).homEquiv
 
 -- the group `Ext^n(X, Y)` could be redefined as:
 example (X Y : C) (n : ℕ) : Type w :=
@@ -540,6 +540,9 @@ variable {C : Type*} [Category C] [Preadditive C] [HasZeroObject C] [HasShift C 
 instance (Y : C) : (preadditiveYoneda.obj Y).IsHomological := inferInstance
 
 instance (X : Cᵒᵖ) : (preadditiveCoyoneda.obj X).IsHomological := inferInstance
+
+-- see the file `Mathlib.Algebra.Homology.DerivedCategory.Ext.ExactSequences`
+-- for the construction of the long exact sequences of Ext-groups
 
 end
 
