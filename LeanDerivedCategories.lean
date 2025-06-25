@@ -452,7 +452,7 @@ variable {T : Type*} [Category T] [HasZeroObject T] [Preadditive T] [HasShift T 
 
 /-! ### 4.4.1 The localization theorem -/
 
-example (W : MorphismProperty T) [W.HasLeftCalculusOfFractions]
+noncomputable example (W : MorphismProperty T) [W.HasLeftCalculusOfFractions]
     [W.IsCompatibleWithTriangulation] :
   Pretriangulated W.Localization := by infer_instance
 
@@ -462,15 +462,18 @@ example [IsTriangulated T] (W : MorphismProperty T) [W.HasLeftCalculusOfFraction
 
 /-! ### 4.4.2 Triangulated subcategories -/
 
--- the notion of triangulated subcategory of a pretriangulated category
-#check Triangulated.Subcategory
+-- if `S : ObjectProperty T` is a property of objects in a triangulated category `T`,
+-- we defined the predicate `S.IsTriangulated` to say that `S`
+-- is a triangulated subcategory of `T`
+#check ObjectProperty.IsTriangulated
 
 -- if `S` is a triangulated subcategory of a triangulated category `T`, then
--- the class `S.W : MorphismProperty T` of morphisms whose cone is
+-- the class `S.trW : MorphismProperty T` of morphisms whose cone is
 -- in `S` (at least up to isomorphism) satisfies the assumption of the theorem 4.4.1,
--- in which case the localized category with respect to `S.W` is the "Verdier quotient `T/S`"
-example (S : Triangulated.Subcategory T) [IsTriangulated T] :
-    IsTriangulated S.W.Localization := inferInstance
+-- in which case the localized category with respect to `S.trW` is the "Verdier quotient `T/S`"
+example (S : ObjectProperty T) [IsTriangulated T]
+    [S.IsTriangulated] :
+    IsTriangulated S.trW.Localization := inferInstance
 
 end
 /-! ### 4.4.3 The derived category -/
@@ -481,16 +484,15 @@ variable {C : Type u} [Category.{v} C] [Abelian C] [HasDerivedCategory.{w} C]
 
 -- The triangulated subcategory of the homotopy category of an abelian category
 -- consisting of acyclic complexes
-example : Triangulated.Subcategory (HomotopyCategory C (ComplexShape.up ℤ)) :=
-  HomotopyCategory.subcategoryAcyclic C
+example : (HomotopyCategory.subcategoryAcyclic C).IsTriangulated := inferInstance
 
 -- the derived category identifies to the Verdier quotient of the homotopy category
 -- by the triangulated subcategory of acyclic complexes
-instance : DerivedCategory.Qh.IsLocalization (HomotopyCategory.subcategoryAcyclic C).W :=
+instance : DerivedCategory.Qh.IsLocalization (HomotopyCategory.subcategoryAcyclic C).trW :=
   inferInstance
--- this follows from the fact that the class `(HomotopyCategory.subcategoryAcyclic C).W`
+-- this follows from the fact that the class `(HomotopyCategory.subcategoryAcyclic C).trW`
 -- is the class of quasi-isomorphisms:
-#check HomotopyCategory.quasiIso_eq_subcategoryAcyclic_W
+#check HomotopyCategory.quasiIso_eq_subcategoryAcyclic_trW
 -- the proof of this lemma uses the fact that the homology functor on the homotopy
 -- category is a homological functor:
 example : (HomotopyCategory.homologyFunctor C (ComplexShape.up ℤ) 0).IsHomological :=
@@ -560,9 +562,9 @@ open Triangulated DerivedCategory.TStructure
 variable {C : Type*} [Category C] [Abelian C] [HasDerivedCategory C]
 
 -- the canonical t-structure on the derived category `D(C)`
-example : TStructure (DerivedCategory C) := t
+noncomputable example : TStructure (DerivedCategory C) := t
 -- the induced t-structure on the bounded below derived category `D^+(C)`
-example : TStructure (DerivedCategory.Plus C) := DerivedCategory.Plus.TStructure.t
+noncomputable example : TStructure (DerivedCategory.Plus C) := DerivedCategory.Plus.TStructure.t
 
 variable {T : Type*} [Category T] [Preadditive T] [HasZeroObject T] [HasShift T ℤ]
   [∀ (n : ℤ), (shiftFunctor T n).Additive] [Pretriangulated T] [IsTriangulated T]
